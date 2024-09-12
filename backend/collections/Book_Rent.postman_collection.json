@@ -1,0 +1,610 @@
+{
+	"info": {
+		"_postman_id": "d74cf8c4-af00-47c9-ab0e-0257d5aedbaa",
+		"name": "Book Rent",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "34603489"
+	},
+	"item": [
+		{
+			"name": "Create New User Account",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"//Function to generate 4 random digits\r",
+							"function generateRandomHash() {\r",
+							"    return Math.floor(1000 + Math.random() * 9000);\r",
+							"}\r",
+							"\r",
+							"//Hashes generated for userAccount and passAccount\r",
+							"let userAccountHash = generateRandomHash();\r",
+							"let passAccountHash = generateRandomHash();\r",
+							"\r",
+							"//Save the complete username and password (with prefix + hash) in collection variables\r",
+							"pm.collectionVariables.set(\"userAccount\", \"QA_User_\" + userAccountHash);\r",
+							"pm.collectionVariables.set(\"passAccount\", \"QA_Pass*_\" + passAccountHash);\r",
+							"\r",
+							"//Log the full values with prefixes for debugging\r",
+							"console.log(\"userAccount:\", \"QA_User_\" + userAccountHash);\r",
+							"console.log(\"passAccount:\", \"QA_Pass*_\" + passAccountHash);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Store the response\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"//Validate response body not empty\r",
+							"pm.test(\"Response body should not be empty\", function () {\r",
+							"    pm.expect(pm.response.text()).to.not.be.empty;\r",
+							"});\r",
+							"\r",
+							"//Save the userId in collection variable\r",
+							"pm.collectionVariables.set(\"accountUuid\", response.userID);\r",
+							"\r",
+							"//Validate the password conditions in the response message\r",
+							"if (response.code === \"1300\" && response.message) {\r",
+							"    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^\\da-zA-Z]).{8,}$/;\r",
+							"    const password = pm.collectionVariables.get(\"passAccount\");\r",
+							"\r",
+							"    pm.test(\"Password must meet the specified criteria\", function () {\r",
+							"        pm.expect(password).to.match(passwordRegex);\r",
+							"    });\r",
+							"}\r",
+							"\r",
+							"//Validate if the userId is a valid UUID\r",
+							"pm.test(\"UserID should be a valid UUID\", function () {\r",
+							"    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;\r",
+							"    pm.expect(response.userID).to.match(uuidRegex);\r",
+							"});\r",
+							"\r",
+							"//Validate if the username matches the one set in the collection variable\r",
+							"pm.test(\"Username should match the registered username\", function () {\r",
+							"    const expectedUsername = pm.collectionVariables.get(\"userAccount\");\r",
+							"    pm.expect(response.username).to.eql(expectedUsername);\r",
+							"});\r",
+							"\r",
+							"//Validate the response status code is 201 for a successful registration\r",
+							"pm.test(\"Response status should be 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"//Ensure the user has no books (since it's a new registration)\r",
+							"pm.test(\"User should have no books in the response\", function () {\r",
+							"    pm.expect(response.books).to.be.an(\"array\").that.is.empty;\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"userName\": \"{{userAccount}}\",\n  \"password\": \"{{passAccount}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{accoutBaseUrl}}/v1/User",
+					"host": [
+						"{{accoutBaseUrl}}"
+					],
+					"path": [
+						"v1",
+						"User"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Generate User Account Access Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Store response\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"//Validate response body not empty\r",
+							"pm.test(\"Response body should not be empty\", function () {\r",
+							"    pm.expect(pm.response.text()).to.not.be.empty;\r",
+							"});\r",
+							"\r",
+							"//Save token in collection variable\r",
+							"pm.collectionVariables.set(\"bearerToken\", response.token);\r",
+							"\r",
+							"//Save token expiration in collection variable\r",
+							"pm.collectionVariables.set(\"tokenExpiration\", response.expires);\r",
+							"\r",
+							"//Validate response status code, must be 200\r",
+							"pm.test(\"Response status should be 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"//Validate the status field in the response is \"Success\"\r",
+							"pm.test(\"Status should be 'Success'\", function () {\r",
+							"    pm.expect(response.status).to.eql(\"Success\");\r",
+							"});\r",
+							"\r",
+							"//Validate the result field in the response is \"User authorized successfully.\"\r",
+							"pm.test(\"Result should be 'User authorized successfully'\", function () {\r",
+							"    pm.expect(response.result).to.eql(\"User authorized successfully.\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"packages": {},
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"userName\": \"{{userAccount}}\",\n  \"password\": \"{{passAccount}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{accoutBaseUrl}}/v1/GenerateToken",
+					"host": [
+						"{{accoutBaseUrl}}"
+					],
+					"path": [
+						"v1",
+						"GenerateToken"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validate User Account Authorization",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//store response\r",
+							"const response = pm.response.text();\r",
+							"\r",
+							"//Validate response body not empty\r",
+							"pm.test(\"Response body should not be empty\", function () {\r",
+							"    pm.expect(response).to.not.be.empty;\r",
+							"});\r",
+							"\r",
+							"//Response must be true\r",
+							"pm.test(\"Response must be true as text\", function () {\r",
+							"    pm.expect(response).to.equal('true');\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"userName\": \"{{userAccount}}\",\n  \"password\": \"{{passAccount}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{accoutBaseUrl}}/v1/Authorized",
+					"host": [
+						"{{accoutBaseUrl}}"
+					],
+					"path": [
+						"v1",
+						"Authorized"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Books",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Store the response\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"//Validate response body not empty\r",
+							"pm.test(\"Response body should not be empty\", function () {\r",
+							"    pm.expect(response).to.not.be.empty;\r",
+							"});\r",
+							"\r",
+							"// Validate response body is not empty\r",
+							"pm.test(\"Response body should not be empty\", function () {\r",
+							"    pm.expect(pm.response.text()).to.not.be.empty;\r",
+							"});\r",
+							"\r",
+							"// Save all ISBNs in a collection variable (avaliabeBookNumbers)\r",
+							"let isbnList = response.books.map(book => book.isbn);\r",
+							"let isbnString = isbnList.join(\",\");\r",
+							"pm.collectionVariables.set(\"avaliabeBookNumbers\", isbnString);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"packages": {},
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{bookstoreBaseUrl}}/v1/Books",
+					"host": [
+						"{{bookstoreBaseUrl}}"
+					],
+					"path": [
+						"v1",
+						"Books"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Rent Book",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"//Get the available books from the collection variable\r",
+							"let availableBooks = pm.collectionVariables.get(\"avaliabeBookNumbers\");\r",
+							"\r",
+							"//Split the string of available books into an array\r",
+							"let bookArray = availableBooks.split(',');\r",
+							"\r",
+							"//Shuffle the array to randomize it and then select two books\r",
+							"function getRandomBooks(arr, num) {\r",
+							"    let shuffled = arr.sort(() => 0.5 - Math.random());\r",
+							"    return shuffled.slice(0, num);\r",
+							"}\r",
+							"\r",
+							"//Select two random books\r",
+							"let selectedBooks = getRandomBooks(bookArray, 2);\r",
+							"\r",
+							"//Create the JSON structure for \"collectionOfIsbns\" field\r",
+							"let collectionOfIsbns = selectedBooks.map(isbn => ({ \"isbn\": isbn }));\r",
+							"\r",
+							"//Save the JSON array as a string in a collection variable\r",
+							"pm.collectionVariables.set(\"chosedBooks\", JSON.stringify(collectionOfIsbns));\r",
+							"\r",
+							"//Save the selected books as a string for later validation\r",
+							"pm.collectionVariables.set(\"selectedIsbns\", selectedBooks.join(\",\"));\r",
+							"\r",
+							"//Log for debugging\r",
+							"console.log(\"Selected books JSON structure:\", collectionOfIsbns);\r",
+							"console.log(\"Selected ISBNs:\", selectedBooks);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Store the response\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"//Validate response status code is 201\r",
+							"pm.test(\"Response status should be 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"//Validate response body is not empty\r",
+							"pm.test(\"Response body should not be empty\", function () {\r",
+							"    pm.expect(pm.response.text()).to.not.be.empty;\r",
+							"});\r",
+							"\r",
+							"//Validate the structure of the response (it should contain the 'books' array)\r",
+							"pm.test(\"Response should contain 'books' array\", function () {\r",
+							"    pm.expect(response).to.have.property('books');\r",
+							"    pm.expect(response.books).to.be.an('array').that.has.lengthOf(2);\r",
+							"});\r",
+							"\r",
+							"//Validate if the books sent are the same as the ones in the response\r",
+							"let selectedIsbns = pm.collectionVariables.get(\"selectedIsbns\").split(\",\");\r",
+							"let responseIsbns = response.books.map(book => book.isbn);\r",
+							"\r",
+							"//Validate that both selected books are present in the response\r",
+							"pm.test(\"Response should contain the correct chosen books\", function () {\r",
+							"    pm.expect(responseIsbns).to.have.members(selectedIsbns);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"userId\": \"{{accountUuid}}\",\n  \"collectionOfIsbns\": {{chosedBooks}}\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{bookstoreBaseUrl}}/v1/Books",
+					"host": [
+						"{{bookstoreBaseUrl}}"
+					],
+					"path": [
+						"v1",
+						"Books"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Account Information",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Store the response\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"//Validate response status code is 200\r",
+							"pm.test(\"Response status should be 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"//Validate response body is not empty\r",
+							"pm.test(\"Response body should not be empty\", function () {\r",
+							"    pm.expect(pm.response.text()).to.not.be.empty;\r",
+							"});\r",
+							"\r",
+							"//Validate that the userId in the response matches the collection variable 'accountUuid'\r",
+							"pm.test(\"userId should match the collection variable accountUuid\", function () {\r",
+							"    const accountUuid = pm.collectionVariables.get(\"accountUuid\");\r",
+							"    pm.expect(response.userId).to.eql(accountUuid);\r",
+							"});\r",
+							"\r",
+							"//Validate that the username in the response matches the collection variable\r",
+							"pm.test(\"username should match the collection variable userAccount\", function () {\r",
+							"    const userAccount = pm.collectionVariables.get(\"userAccount\");\r",
+							"    pm.expect(response.username).to.eql(userAccount);\r",
+							"});\r",
+							"\r",
+							"//Validate that the response contains only 2 ISBNs\r",
+							"pm.test(\"Response should contain exactly 2 books\", function () {\r",
+							"    pm.expect(response.books).to.be.an('array').that.has.lengthOf(2);\r",
+							"});\r",
+							"\r",
+							"//Validate that the ISBNs in the response match the ones in the collection variable\r",
+							"pm.test(\"ISBNs in response should match the selected books\", function () {\r",
+							"    let selectedIsbns = pm.collectionVariables.get(\"selectedIsbns\").split(\",\");\r",
+							"    let responseIsbns = response.books.map(book => book.isbn);\r",
+							"    pm.expect(responseIsbns).to.have.members(selectedIsbns);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"packages": {},
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{accoutBaseUrl}}/v1/User/{{accountUuid}}",
+					"host": [
+						"{{accoutBaseUrl}}"
+					],
+					"path": [
+						"v1",
+						"User",
+						"{{accountUuid}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{bearerToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "accoutBaseUrl",
+			"value": "{{serviceBaseUrl}}/Account",
+			"type": "string"
+		},
+		{
+			"key": "bookstoreBaseUrl",
+			"value": "{{serviceBaseUrl}}/BookStore",
+			"type": "string"
+		},
+		{
+			"key": "userAccount",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "passAccount",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "accountUuid",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "bearerToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "tokenExpiration",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "avaliabeBookNumbers",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "chosedBookNumbers",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "chosedBooks",
+			"value": ""
+		},
+		{
+			"key": "selectedIsbns",
+			"value": ""
+		}
+	]
+}

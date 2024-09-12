@@ -1,4 +1,4 @@
-# QA-Automation-Engineer-Challenge
+# qa-automation-engineer-challenge
 QA Automation Engineer Challenge - JavaScript + Postman + Cypress
 
 Project Description - API Test
@@ -9,7 +9,7 @@ API Test Project Structure
 
 The backend directory is organized as follows:
 
-QA-Automation-Engineer-Challenge/
+qa-automation-engineer-challenge/
 ├── backend/
 │   ├── collections/       # Postman test collections
 │   │   └── Book_Rent.postman_collection.json
@@ -33,8 +33,8 @@ ____________________________________________________________
 How to Run the Tests
 
 1. Clone the repository:
-git clone https://github.com/giovannimnz/QA-Automation-Engineer-Challenge.git
-cd QA-Automation-Engineer-Challenge
+git clone https://github.com/giovannimnz/qa-automation-engineer-challenge.git
+cd qa-automation-engineer-challenge
 
 2. Import the Collection and Environment into Postman:
 Open Postman

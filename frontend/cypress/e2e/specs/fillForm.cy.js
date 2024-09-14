@@ -1,5 +1,5 @@
 import FormPage from '../pages/formPage';
-import { generateRandomUserData } from '../data/dataGenerator';
+import { generateRandomUserData } from '../../fixtures/dataGenerator';
 
 const formPage = new FormPage();
 

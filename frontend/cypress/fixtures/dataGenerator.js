@@ -18,8 +18,8 @@ export function generateRandomUserData() {
 
   const randomSubjects = generateRandomSubjects();
   function generateRandomSubjects() {
-    const availableSubjects = [1, 2, 3, 4, 5, 6, 7, 8];
-    const numberOfSubjects = Math.floor(Math.random() * 2) + 2;
+    const availableSubjects = [1, 2, 3, 4, 5, 6, 7];
+    const numberOfSubjects = Math.floor(Math.random() * 6) + 1;
     return availableSubjects.sort(() => 0.5 - Math.random()).slice(0, numberOfSubjects);
   }
 

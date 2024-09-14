@@ -22,6 +22,9 @@ describe('Fill the form', () => {
       formPage.selectCity(userData.randomCity);
       formPage.submitForm();
       cy.contains('Thanks for submitting the form').should('be.visible');
+      cy.contains(userData.randomFirstName + ' ' + userData.randomLastName).should('be.visible');
+      cy.contains(userData.randomEmail).should('be.visible');
+      cy.contains(userData.randomPhoneNumber).should('be.visible');
       formPage.closeModal();
   });
 });

@@ -28,8 +28,8 @@ class FormPage {
 
   selectSubjects(subjects) {
     subjects.forEach((subject) => {
-      cy.get(formElements.subjectsField()).type('S');  // Abre o campo de subjects
-      cy.get(`#react-select-2-option-${subject}`).click();  // Seleciona o subject correspondente
+      cy.get(formElements.subjectsField()).type('S');
+      cy.get(`#react-select-2-option-${subject}`).click();
     });
   }
 
@@ -63,6 +63,8 @@ class FormPage {
 
   closeModal() {
     cy.get('#adplus-anchor').invoke('remove');
+
+    cy.wait(5000)
 
     cy.get(formElements.closeModal())
         .scrollIntoView()

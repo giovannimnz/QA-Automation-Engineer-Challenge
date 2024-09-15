@@ -1,4 +1,5 @@
 class FormElements {
+  practiceFormButton = () => ':nth-child(2) > .element-list > .menu-list > #item-0'
   inputFirstName = () => '#firstName';
   inputLastName = () => '#lastName';
   inputEmail = () => '#userEmail';

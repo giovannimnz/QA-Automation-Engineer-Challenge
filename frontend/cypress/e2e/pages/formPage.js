@@ -1,7 +1,22 @@
+import IndexElements from "../elements/indexElements";
 import FormElements from '../elements/formElements';
+
+const indexElements = new IndexElements
 const formElements = new FormElements();
 
 class FormPage {
+  index(){
+    cy.visit('/');
+  }
+
+  openForms() {
+    cy.get(indexElements.menuFormsButton()).click();
+  }
+
+  openPracticeForm() {
+    cy.get(formElements.practiceFormButton()).click();
+  }
+
   fillInFirstNameAndLastName(name, lastName) {
     cy.get(formElements.inputFirstName()).type(name);
     cy.get(formElements.inputLastName()).type(lastName);

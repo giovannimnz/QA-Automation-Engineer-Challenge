@@ -1,11 +1,21 @@
 import FormPage from '../pages/formPage';
+import Index from "../pages/index";
 import { generateRandomUserData } from '../../fixtures/dataGenerator';
 
+const index = new Index();
 const formPage = new FormPage();
 const userData = generateRandomUserData();
 
-Given('I am on the form page', function () {
-  cy.visit('/');
+Given('I am in the initial page', function () {
+  cy.get(index.index);
+});
+
+When('I click in the form option', function () {
+  formPage.openForms();
+});
+
+When('I click in the submenu option: Practice form', function () {
+  formPage.openPracticeForm();
 });
 
 When('I fill in the first name and last name', function () {

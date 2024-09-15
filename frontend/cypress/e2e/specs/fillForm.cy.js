@@ -1,14 +1,19 @@
 import FormPage from '../pages/formPage';
+import Index from '../pages/index';
+
 import { generateRandomUserData } from '../../fixtures/dataGenerator';
 
 const formPage = new FormPage();
+const index = new Index();
 
 describe('Fill the form', () => {
   it('Fill the form with aleatory data', () => {
 
       const userData = generateRandomUserData();
 
-      cy.visit('/automation-practice-form');
+      index.index();
+      formPage.openForms();
+      formPage.openPracticeForm();
       formPage.fillInFirstNameAndLastName(userData.randomFirstName, userData.randomLastName);
       formPage.fillInEmail(userData.randomEmail);
       formPage.selectGender(userData.randomGender);

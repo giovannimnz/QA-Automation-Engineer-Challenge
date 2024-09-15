@@ -16,6 +16,10 @@ export function generateRandomUserData() {
   const randomYear = format(randomDateOfBirth, 'yyyy');
   const randomDayOfYear = getDayOfYear(randomDateOfBirth).toString().padStart(3, '0');
 
+  const randomAge = Math.floor(20 + Math.random() * 41);
+  const randomDepartment = faker.person.jobArea();
+  const randomSalary = Math.floor(5 + Math.random() * 21) * 1000;
+
   const randomSubjects = generateRandomSubjects();
   function generateRandomSubjects() {
     const availableSubjects = [1, 2, 3, 4, 5, 6, 7];
@@ -44,6 +48,9 @@ export function generateRandomUserData() {
     randomMonth,
     randomYear,
     randomDayOfYear,
+    randomAge,
+    randomDepartment,
+    randomSalary,
     randomSubjects,
     randomHobby,
     randomAddress,

@@ -2,8 +2,10 @@ Feature:form
   fillForm
 
   Scenario: Fill out a form
-    Given I am on the form page
-    When I fill in the first name and last name
+    Given I am in the initial page
+    When I click in the form option
+    And I click in the submenu option: Practice form
+    And I fill in the first name and last name
     And I fill in the email
     And I select the gender
     And I fill in the phone number

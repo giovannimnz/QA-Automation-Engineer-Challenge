@@ -1,4 +1,4 @@
-import FormElements from '../elemets/formElements';
+import FormElements from '../elements/formElements';
 const formElements = new FormElements();
 
 class FormPage {
@@ -64,7 +64,7 @@ class FormPage {
   closeModal() {
     cy.get('#adplus-anchor').invoke('remove');
 
-    cy.wait(5000)
+    cy.wait(3000)
 
     cy.get(formElements.closeModal())
         .scrollIntoView()

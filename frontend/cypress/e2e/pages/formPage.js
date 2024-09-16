@@ -1,11 +1,11 @@
-import IndexElements from "../elements/indexElements";
+import IndexElements from '../elements/indexElements';
 import FormElements from '../elements/formElements';
 
-const indexElements = new IndexElements
+const indexElements = new IndexElements();
 const formElements = new FormElements();
 
 class FormPage {
-  index(){
+  index() {
     cy.visit('/');
   }
 
@@ -78,13 +78,11 @@ class FormPage {
 
   closeModal() {
     cy.get('#adplus-anchor').invoke('remove');
-
-    cy.wait(3000)
-
+    cy.wait(3000);
     cy.get(formElements.closeModal())
-        .scrollIntoView()
-        .should('be.visible')
-        .click({ force: true });
+      .scrollIntoView()
+      .should('be.visible')
+      .click({ force: true });
   }
 }
 

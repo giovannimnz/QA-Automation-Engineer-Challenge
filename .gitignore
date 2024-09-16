@@ -12,6 +12,7 @@ newman/
 
 # Prettier
 .prettierrc
+.prettierignore
 
 #idea
 .idea

@@ -131,9 +131,17 @@ Cucumber: Integrated with Cypress to define behavior-driven development (BDD) te
 faker.js: Library used to generate random test data in dataGenerator.js.
 
 Running the Tests
-Ensure Cypress is installed:
 
-npm install
+In yor IDE, go to folder: frontend
+cd frontend
+
+Install Cypress
+npm install cypress --save-dev
+
+And These necessary libraries:
+npm install --save-dev @4tw/cypress-drag-drop
+npm install --save-dev @faker-js/faker
+
 To run Cypress with the GUI:
 
 npx cypress open

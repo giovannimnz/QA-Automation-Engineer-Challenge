@@ -1,5 +1,4 @@
-Feature:webtables
-  editRegisters
+Feature: Edit Webtables Registers
 
   Scenario: Edit registers
     Given I am in the initial page

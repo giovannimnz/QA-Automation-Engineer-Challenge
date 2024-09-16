@@ -1,5 +1,4 @@
-Feature: window
-  openNewWindow
+Feature: Open a new Window
 
   Scenario: Open a new window
     Given I am in the initial page

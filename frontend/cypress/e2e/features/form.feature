@@ -1,5 +1,4 @@
-Feature:form
-  fillForm
+Feature: Fill Form
 
   Scenario: Fill out a form
     Given I am in the initial page

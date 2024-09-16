@@ -1,13 +1,11 @@
 import FormPage from '../pages/formPage';
-import Index from "../pages/index";
 import { generateRandomUserData } from '../../fixtures/dataGenerator';
 
-const index = new Index();
 const formPage = new FormPage();
 const userData = generateRandomUserData();
 
 Given('I am in the initial page', function () {
-  cy.get(index.index);
+  cy.get(formPage.index);
 });
 
 When('I click in the form option', function () {
@@ -19,11 +17,14 @@ When('I click in the submenu option: Practice form', function () {
 });
 
 When('I fill in the first name and last name', function () {
-    formPage.fillInFirstNameAndLastName(userData.randomFirstName, userData.randomLastName);
+  formPage.fillInFirstNameAndLastName(
+    userData.randomFirstName,
+    userData.randomLastName
+  );
 });
 
 When('I fill in the email', function () {
-    formPage.fillInEmail(userData.randomEmail);
+  formPage.fillInEmail(userData.randomEmail);
 });
 
 When('I select the gender', function () {
@@ -35,7 +36,11 @@ When('I fill in the phone number', function () {
 });
 
 When('I select the date of birth', function () {
-  formPage.selectDateOfBirth(userData.randomMonth, userData.randomYear, userData.randomDayOfYear);
+  formPage.selectDateOfBirth(
+    userData.randomMonth,
+    userData.randomYear,
+    userData.randomDayOfYear
+  );
 });
 
 When('I fill in the interest', function () {
@@ -69,7 +74,10 @@ When('I click the submit button', function () {
 
 Then('The form should be successfully submitted', function () {
   cy.contains('Thanks for submitting the form').should('be.visible');
-  cy.get('tbody > :nth-child(1) > :nth-child(2)').contains(userData.randomFirstName, userData.randomLastName);
+  cy.get('tbody > :nth-child(1) > :nth-child(2)').contains(
+    userData.randomFirstName,
+    userData.randomLastName
+  );
 });
 
 Then('I click in the close bottom to close modal', function () {
